@@ -6,7 +6,7 @@ import PackageDescription
 let package = Package(
     name: "LightCompressor",
     platforms: [
-        .iOS(.v14), .tvOS(.v14), .visionOS(.v1)
+        .iOS(.v15), .tvOS(.v15), .visionOS(.v1)
     ],
     products: [
         .library(
