@@ -102,7 +102,7 @@ public struct LightCompressor {
     public func compressVideo(videos: [Video],
                               progressQueue: DispatchQueue = .main,
                               progressHandler: ((Progress) -> ())?,
-                              completion: @escaping (CompressionResult) -> ()) -> Compression {
+                              completion: @escaping (CompressionResult) -> ()) async -> Compression {
         let compressionOperation = Compression()
         
         guard !videos.isEmpty else {
@@ -120,7 +120,8 @@ public struct LightCompressor {
             completion(.onStart)
             
             let videoAsset = AVURLAsset(url: source)
-            guard let videoTrack = videoAsset.tracks(withMediaType: AVMediaType.video).first else {
+            
+            guard let videoTrack = try? await videoAsset.loadTracks(withMediaType: .video).first else {
                 let error = CompressionError(title: "Cannot find video track")
                 completion(.onFailure(index, error))
                 continue
@@ -186,7 +187,8 @@ public struct LightCompressor {
             audioWriterInput.expectsMediaDataInRealTime = false
             videoWriter?.add(audioWriterInput)
             //setup audio reader
-            let audioTrack = videoAsset.tracks(withMediaType: AVMediaType.audio).first
+            
+            let audioTrack = try? await videoAsset.loadTracks(withMediaType: .audio).first
             var audioReader: AVAssetReader?
             var audioReaderOutput: AVAssetReaderTrackOutput?
             if(audioTrack != nil) {
